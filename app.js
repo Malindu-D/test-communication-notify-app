@@ -1,8 +1,7 @@
-﻿// Immediate execution test
-console.log("✅ app.js is loading...");
+﻿// HARDCODED API endpoint - bypassing environment variable
+let apiBaseEndpoint = "https://test-dotnet-emailapi-fsbceeebbhg6bybf.southeastasia-01.azurewebsites.net";
 
-// Global API base endpoint
-let apiBaseEndpoint = "";
+console.log("✅ app.js loaded - Using hardcoded endpoint:", apiBaseEndpoint);
 
 // DOM Elements
 const emailForm = document.getElementById("emailForm");
@@ -10,83 +9,22 @@ const receiverEmailInput = document.getElementById("receiverEmail");
 const sendEmailBtn = document.getElementById("sendEmailBtn");
 const responseMessage = document.getElementById("responseMessage");
 
-console.log("📋 DOM Elements loaded:", {
-  emailForm: !!emailForm,
-  receiverEmailInput: !!receiverEmailInput,
-  sendEmailBtn: !!sendEmailBtn,
-  responseMessage: !!responseMessage,
+// Show ready message when page loads
+window.addEventListener("DOMContentLoaded", () => {
+  console.log("🎯 Page loaded and ready");
+  showMessage("✅ Ready to send emails!", true);
 });
-
-// Load configuration on page load
-window.addEventListener("DOMContentLoaded", async () => {
-  console.log("🎯 DOMContentLoaded event fired");
-  await loadConfig();
-});
-
-async function loadConfig() {
-  try {
-    console.log("🔄 Loading API base endpoint from Azure configuration...");
-
-    // Get API base endpoint from Azure Static Web App environment variables
-    const configResponse = await fetch("/api/config");
-
-    console.log("📡 Config response status:", configResponse.status);
-
-    if (configResponse.ok) {
-      const config = await configResponse.json();
-      console.log("📦 Config loaded:", config);
-
-      apiBaseEndpoint = config.apiBaseEndpoint;
-
-      if (apiBaseEndpoint) {
-        console.log("✅ API base endpoint configured:", apiBaseEndpoint);
-        showMessage(
-          "✅ API endpoint loaded successfully. Ready to send emails!",
-          true
-        );
-      } else {
-        console.error(
-          "❌ API_BASE_ENDPOINT not set in Azure environment variables"
-        );
-        showMessage(
-          "❌ API endpoint not configured. Please set API_BASE_ENDPOINT in Azure Static Web App environment variables.",
-          false
-        );
-      }
-    } else {
-      throw new Error(
-        `Config endpoint returned status ${configResponse.status}`
-      );
-    }
-  } catch (error) {
-    console.error("❌ Configuration load error:", error);
-    showMessage(
-      "❌ Cannot load configuration. Please check your deployment.",
-      false
-    );
-  }
-}
 
 // Handle form submission - Automatically appends /api/sendemail to base endpoint
 emailForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   console.log("🔥 FORM SUBMITTED!");
-  console.log("Current location:", window.location.href);
 
   const receiverEmail = receiverEmailInput.value.trim();
   console.log("📧 Email input value:", receiverEmail);
 
   // Validation
-  if (!apiBaseEndpoint) {
-    console.error("❌ No API base endpoint configured");
-    showMessage(
-      "❌ API endpoint not configured. Please check Azure environment variables.",
-      false
-    );
-    return;
-  }
-
   if (!receiverEmail || !isValidEmail(receiverEmail)) {
     console.error("❌ Invalid email:", receiverEmail);
     showMessage("Please enter a valid email address", false);
@@ -104,9 +42,8 @@ emailForm.addEventListener("submit", async (e) => {
   responseMessage.innerHTML = "";
 
   try {
-    console.log("📧 Sending email request to:", emailEndpoint);
-    console.log("📨 Receiver email:", receiverEmail);
-    console.log("📤 Request payload:", { receiverEmail });
+    console.log("📧 Sending POST request to:", emailEndpoint);
+    console.log("📨 Payload:", { receiverEmail });
 
     const response = await fetch(emailEndpoint, {
       method: "POST",
@@ -120,7 +57,6 @@ emailForm.addEventListener("submit", async (e) => {
     });
 
     console.log("📥 Response status:", response.status);
-    console.log("📥 Response headers:", response.headers);
 
     const data = await response.json();
     console.log("📦 Response data:", data);
