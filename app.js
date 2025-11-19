@@ -1,4 +1,7 @@
-﻿// Global API base endpoint
+﻿// Immediate execution test
+console.log("✅ app.js is loading...");
+
+// Global API base endpoint
 let apiBaseEndpoint = "";
 
 // DOM Elements
@@ -7,8 +10,16 @@ const receiverEmailInput = document.getElementById("receiverEmail");
 const sendEmailBtn = document.getElementById("sendEmailBtn");
 const responseMessage = document.getElementById("responseMessage");
 
+console.log("📋 DOM Elements loaded:", {
+  emailForm: !!emailForm,
+  receiverEmailInput: !!receiverEmailInput,
+  sendEmailBtn: !!sendEmailBtn,
+  responseMessage: !!responseMessage,
+});
+
 // Load configuration on page load
 window.addEventListener("DOMContentLoaded", async () => {
+  console.log("🎯 DOMContentLoaded event fired");
   await loadConfig();
 });
 
@@ -60,10 +71,15 @@ async function loadConfig() {
 emailForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  console.log("🔥 FORM SUBMITTED!");
+  console.log("Current location:", window.location.href);
+
   const receiverEmail = receiverEmailInput.value.trim();
+  console.log("📧 Email input value:", receiverEmail);
 
   // Validation
   if (!apiBaseEndpoint) {
+    console.error("❌ No API base endpoint configured");
     showMessage(
       "❌ API endpoint not configured. Please check Azure environment variables.",
       false
@@ -72,12 +88,15 @@ emailForm.addEventListener("submit", async (e) => {
   }
 
   if (!receiverEmail || !isValidEmail(receiverEmail)) {
+    console.error("❌ Invalid email:", receiverEmail);
     showMessage("Please enter a valid email address", false);
     return;
   }
 
   // Construct full API endpoint by appending /api/sendemail
   const emailEndpoint = `${apiBaseEndpoint}/api/sendemail`;
+
+  console.log("🎯 Target endpoint:", emailEndpoint);
 
   // Disable form
   sendEmailBtn.disabled = true;

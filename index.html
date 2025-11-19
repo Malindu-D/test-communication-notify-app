@@ -50,6 +50,19 @@
       </div>
     </div>
 
+    <script>
+      // Immediate load test
+      console.log("🚀 Script loaded successfully!");
+      console.log("📍 Current URL:", window.location.href);
+      console.log("🌐 Protocol:", window.location.protocol);
+
+      // Check if running locally
+      if (window.location.protocol === "file:") {
+        alert(
+          "⚠️ WARNING: You are running this locally (file://). This app MUST be accessed via the Azure Static Web App URL (https://...) to work properly!"
+        );
+      }
+    </script>
     <script src="app.js"></script>
   </body>
 </html>
