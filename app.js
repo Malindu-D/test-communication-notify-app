@@ -14,25 +14,31 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 async function loadConfig() {
   try {
-    console.log("Loading API base endpoint from Azure configuration...");
+    console.log("🔄 Loading API base endpoint from Azure configuration...");
 
     // Get API base endpoint from Azure Static Web App environment variables
     const configResponse = await fetch("/api/config");
 
+    console.log("📡 Config response status:", configResponse.status);
+
     if (configResponse.ok) {
       const config = await configResponse.json();
-      console.log("Config loaded successfully:", config);
+      console.log("📦 Config loaded:", config);
 
       apiBaseEndpoint = config.apiBaseEndpoint;
 
       if (apiBaseEndpoint) {
         console.log("✅ API base endpoint configured:", apiBaseEndpoint);
+        showMessage(
+          "✅ API endpoint loaded successfully. Ready to send emails!",
+          true
+        );
       } else {
         console.error(
           "❌ API_BASE_ENDPOINT not set in Azure environment variables"
         );
         showMessage(
-          "❌ API endpoint not configured. Please check Azure Static Web App environment variables.",
+          "❌ API endpoint not configured. Please set API_BASE_ENDPOINT in Azure Static Web App environment variables.",
           false
         );
       }
@@ -42,7 +48,7 @@ async function loadConfig() {
       );
     }
   } catch (error) {
-    console.error("Configuration load error:", error);
+    console.error("❌ Configuration load error:", error);
     showMessage(
       "❌ Cannot load configuration. Please check your deployment.",
       false
@@ -79,8 +85,9 @@ emailForm.addEventListener("submit", async (e) => {
   responseMessage.innerHTML = "";
 
   try {
-    console.log("Sending email request to:", emailEndpoint);
-    console.log("Receiver email:", receiverEmail);
+    console.log("📧 Sending email request to:", emailEndpoint);
+    console.log("📨 Receiver email:", receiverEmail);
+    console.log("📤 Request payload:", { receiverEmail });
 
     const response = await fetch(emailEndpoint, {
       method: "POST",
@@ -93,7 +100,11 @@ emailForm.addEventListener("submit", async (e) => {
       }),
     });
 
+    console.log("📥 Response status:", response.status);
+    console.log("📥 Response headers:", response.headers);
+
     const data = await response.json();
+    console.log("📦 Response data:", data);
 
     if (response.ok && data.success) {
       showMessage(`✅ Success! Email sent to ${receiverEmail}`, true);
@@ -102,7 +113,7 @@ emailForm.addEventListener("submit", async (e) => {
       showMessage(`❌ Error: ${data.message || "Failed to send email"}`, false);
     }
   } catch (error) {
-    console.error("Email send error:", error);
+    console.error("❌ Email send error:", error);
     showMessage(
       "❌ Cannot connect to API. Please check connection and try again.",
       false
